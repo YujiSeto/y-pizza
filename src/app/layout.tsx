@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Cart } from "@/components/cart/cart";
+import { LoginAreaDialog } from "@/components/login-area/login-area-dialog";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         >
           {children}
           <Cart />
+          <LoginAreaDialog />
         </ThemeProvider>
       </body>
     </html>
