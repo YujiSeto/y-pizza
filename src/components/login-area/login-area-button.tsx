@@ -16,7 +16,7 @@ export const LoginAreaButton = ({ initialState }: Props) => {
   useEffect(() => {
     setAuthState(auth.token ? true : false);
   }, [auth]);
-  
+
   const handleLogout = () => {
     auth.setToken(null);
   };
@@ -31,14 +31,16 @@ export const LoginAreaButton = ({ initialState }: Props) => {
           </Button>
         </Link>
         <Button onClick={handleLogout}>
-          <LogOut /> <span className="hidden md:inline">Log out</span>
+          <LogOut />
+          <span className="hidden md:inline">Log out</span>
         </Button>
       </>
     );
   } else
     return (
       <Button onClick={() => auth.setOpen(true)}>
-        <LogIn /> <span className="hidden md:inline">Login / Register</span>
+        <LogIn />
+        <span className="hidden md:inline">Login / Register</span>
       </Button>
     );
 };
