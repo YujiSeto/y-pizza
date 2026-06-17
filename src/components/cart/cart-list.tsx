@@ -6,9 +6,17 @@ import { useProducts } from "@/stores/products";
 import { useEffect, useState } from "react";
 import { CartProduct } from "./cart-product";
 import { decimalToMoney } from "@/lib/utils";
-import { CheckCircle, DollarSign, Receipt, Truck } from "lucide-react";
+import {
+  CheckCircle,
+  DollarSign,
+  LogInIcon,
+  Receipt,
+  Truck,
+} from "lucide-react";
+import { useAuth } from "@/stores/auth";
 
 export const CartList = () => {
+  const auth = useAuth();
   const cart = useCart();
   const products = useProducts();
 
@@ -56,9 +64,17 @@ export const CartList = () => {
           </span>
         </div>
       </div>
-      <Button className="w-full">
-        <CheckCircle size={16} /> Finish Order
-      </Button>
+
+      {auth.token && (
+        <Button className="w-full">
+          <CheckCircle size={16} /> Finish Order
+        </Button>
+      )}
+      {!auth.token && (
+        <Button className="w-full" onClick={() => auth.setOpen(true)}>
+          <LogInIcon size={16} /> Login to Finish Order
+        </Button>
+      )}
     </>
   );
 };

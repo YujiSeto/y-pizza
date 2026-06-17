@@ -5,6 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useAuth } from "@/stores/auth";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
+import { LoginAreaStepEmail } from "./login-area-step-email";
+import { LoginAreaStepSignUp } from "./login-area-step-signup";
+import { getCookie } from "cookies-next/client";
+import { LoginAreaStepSignIn } from "./login-area-step-signin";
 
 type Steps = "EMAIL" | "SIGNUP" | "SIGNIN";
 
@@ -12,6 +16,30 @@ export const LoginAreaDialog = () => {
   const auth = useAuth();
 
   const [step, setStep] = useState<Steps>("EMAIL");
+  const [emailField, setEmailField] = useState("");
+
+  useEffect(() => {
+    const token = getCookie("token");
+    if (token) {
+      auth.setToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!auth.open) {
+      setStep("EMAIL");
+      setEmailField("");
+    }
+  }, [auth.open]);
+
+  const handleStepEmail = (hasEmail: boolean, email: string) => {
+    setEmailField(email);
+    if (hasEmail) {
+      setStep("SIGNIN");
+    } else {
+      setStep("SIGNUP");
+    }
+  };
 
   return (
     <Dialog open={auth.open} onOpenChange={auth.setOpen}>
@@ -28,25 +56,23 @@ export const LoginAreaDialog = () => {
               </Button>
             )}
             {step === "EMAIL" && "Login / Register"}
-            {step === "SIGNUP" && "Sign up"}
+            {step === "SIGNUP" && "Register"}
             {step === "SIGNIN" && "Login"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           {step === "EMAIL" && (
-            <div className="">
-              Email
-            </div>
+            <LoginAreaStepEmail onValidate={handleStepEmail} />
           )}
           {step === "SIGNUP" && (
             <div className="">
-              SignUp
+              <LoginAreaStepSignUp email={emailField} />
             </div>
           )}
           {step === "SIGNIN" && (
             <div className="">
-              SignIn
+              <LoginAreaStepSignIn email={emailField} />
             </div>
           )}
         </div>
