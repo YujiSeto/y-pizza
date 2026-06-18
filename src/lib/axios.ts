@@ -2,11 +2,11 @@ import axios from "axios";
 import { getCookie } from "cookies-next/client";
 
 export const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api`,
+  baseURL: "/api",
 });
 
 export const apiWithAuth = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api`,
+  baseURL: "/api",
 });
 
 apiWithAuth.interceptors.request.use(async (config) => {
