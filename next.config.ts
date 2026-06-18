@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
 const nextConfig: NextConfig = {
   images: {
-    dangerouslyAllowLocalIP:
-      process.env.NEXT_PUBLIC_BASE_URL?.includes("localhost"),
-    remotePatterns: [new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/**`)],
+    dangerouslyAllowLocalIP: baseUrl.includes("localhost"),
+    remotePatterns: [new URL(`${baseUrl}/**`)],
   },
 };
 
