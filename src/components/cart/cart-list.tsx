@@ -12,6 +12,7 @@ import {
   LogInIcon,
   Receipt,
   Truck,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth";
 import { apiWithAuth } from "@/lib/axios";
@@ -23,6 +24,7 @@ export const CartList = () => {
 
   const [subtotal, setSubtotal] = useState(0);
   const [shipingCost, setShipingCost] = useState(5);
+  const [loading, setLoading] = useState(false);
 
   const calculateSubtotal = () => {
     let sub = 0;
@@ -38,12 +40,19 @@ export const CartList = () => {
 
   const handleFinish = async () => {
     if (cart.items.length > 0) {
-      const orderReq = await apiWithAuth.post("/order/new", {
-        cart: cart.items,
-      });
+      try {
+        setLoading(true);
+        const orderReq = await apiWithAuth.post("/order/new", {
+          cart: cart.items,
+        });
 
-      if (orderReq.status === 201) {
-        window.location.href = orderReq.data.url;
+        if (orderReq.status === 201) {
+          window.location.href = orderReq.data.url;
+        }
+      } catch (error) {
+        console.error("Failed to finish order", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -79,8 +88,13 @@ export const CartList = () => {
       </div>
 
       {auth.token && (
-        <Button className="w-full" onClick={handleFinish}>
-          <CheckCircle size={16} /> Finish Order
+        <Button className="w-full" onClick={handleFinish} disabled={loading}>
+          {loading ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            <CheckCircle size={16} />
+          )}
+          {loading ? "Processing..." : "Finish Order"}
         </Button>
       )}
       {!auth.token && (
