@@ -14,6 +14,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth";
+import { apiWithAuth } from "@/lib/axios";
 
 export const CartList = () => {
   const auth = useAuth();
@@ -34,6 +35,18 @@ export const CartList = () => {
     setSubtotal(sub);
   };
   useEffect(calculateSubtotal, [cart]);
+
+  const handleFinish = async () => {
+    if (cart.items.length > 0) {
+      const orderReq = await apiWithAuth.post("/order/new", {
+        cart: cart.items,
+      });
+
+      if (orderReq.status === 201) {
+        window.location.href = orderReq.data.url;
+      }
+    }
+  };
 
   return (
     <>
@@ -66,7 +79,7 @@ export const CartList = () => {
       </div>
 
       {auth.token && (
-        <Button className="w-full">
+        <Button className="w-full" onClick={handleFinish}>
           <CheckCircle size={16} /> Finish Order
         </Button>
       )}
