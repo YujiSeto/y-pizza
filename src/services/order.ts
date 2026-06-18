@@ -45,3 +45,21 @@ export const createNewOrder = async (userId: number, cart: CartItem[]) => {
   });
   return newOrder;
 };
+
+export const getUserOrders = async (userId: number) => {
+  return await prisma.order.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      orderProducts: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
+};

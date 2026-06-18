@@ -19,6 +19,11 @@ export const LoginAreaButton = ({ initialState }: Props) => {
 
   const handleLogout = () => {
     auth.setToken(null);
+    if (window.location.pathname === "/orders") {
+      window.location.href = "/";
+    } else {
+      window.location.reload();
+    }
   };
 
   if (authState) {

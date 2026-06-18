@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
 import {
   CheckCircle,
   CircleDot,
@@ -27,10 +28,24 @@ export default async function Page({ searchParams }: Props) {
   if (!paymentSession) return redirect("/");
 
   const status = paymentSession.status;
-  const paymentStatus = paymentSession.payment_status;
-  const customerName = paymentSession.customer_details?.name;
-  const customerEmail = paymentSession.customer_email;
   const paymentMetadata = paymentSession.metadata;
+
+  let order = null;
+  if (paymentMetadata?.order_id) {
+    order = await prisma.order.findUnique({
+      where: { id: Number(paymentMetadata.order_id) },
+      include: { user: true },
+    });
+  }
+
+  const customerName =
+    order?.user?.name || paymentSession.customer_details?.name;
+  const customerEmail = order?.user?.email || paymentSession.customer_email;
+
+  const isPaid = order
+    ? order.status !== "INITIALIZED" && order.status !== "CANCELED"
+    : paymentSession.payment_status === "paid";
+  const orderStatusLabel = order ? order.status : "PROCESSING";
 
   return (
     <div className="container mx-auto px-4">
@@ -90,35 +105,15 @@ export default async function Page({ searchParams }: Props) {
                 <Package size={15} />
                 Order Status
               </span>
-              {status === "complete" ? (
+              {isPaid ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600 dark:text-green-400">
                   <CheckCircle size={12} />
-                  Complete
+                  {orderStatusLabel}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-600 dark:text-yellow-400">
                   <CircleDot size={12} />
-                  Processing
-                </span>
-              )}
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CreditCard size={15} />
-                Payment
-              </span>
-              {paymentStatus === "paid" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600 dark:text-green-400">
-                  <CheckCircle size={12} />
-                  Paid
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-600 dark:text-yellow-400">
-                  <CircleDot size={12} />
-                  Pending
+                  {orderStatusLabel}
                 </span>
               )}
             </div>
