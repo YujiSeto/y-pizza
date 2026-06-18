@@ -19,7 +19,8 @@ A full-stack pizza ordering application with integrated Stripe payments, built w
 - 🛒 Shopping cart with quantity management
 - 🔐 User registration and authentication
 - 💳 Stripe Checkout integration for payments
-- ✅ Order confirmation page with payment status
+- 📦 Order history page ("My Orders") with options to pay or cancel pending orders
+- ✅ Order confirmation page reading real-time status from the database (via Webhooks)
 - 🌙 Dark/Light theme toggle
 
 ## Prerequisites
@@ -96,10 +97,13 @@ src/
 │   │   │   ├── signup/         # POST - User registration
 │   │   │   └── validate_email/ # POST - Email validation
 │   │   ├── order/
-│   │   │   └── new/            # POST - Create order + Stripe checkout
+│   │   │   ├── cancel/         # POST - Cancel an initialized order
+│   │   │   ├── new/            # POST - Create order + Stripe checkout
+│   │   │   └── pay/            # POST - Generate Stripe checkout for pending order
 │   │   ├── pizzas/             # GET  - List products
 │   │   └── webhook/
-│   │       └── stripe/         # POST - Stripe webhook handler
+│   │       └── stripe/         # POST - Stripe webhook handler (updates DB)
+│   ├── orders/                 # Order history page
 │   ├── success/                # Order confirmation page
 │   ├── layout.tsx              # Root layout with theme provider
 │   └── page.tsx                # Home page
@@ -151,7 +155,22 @@ An order can be `CANCELED` at any point.
 3. API creates a Stripe Checkout Session with the order items
 4. User is redirected to Stripe's hosted checkout page
 5. After payment, user is redirected to `/success` with the session ID
-6. Success page retrieves and displays the payment status from Stripe
+6. Stripe Webhook receives the `checkout.session.completed` event and updates the `Order` status to `PAID` in the database
+7. Success page reads the `order_id` from the session and retrieves the real-time status from the database
+
+### Testing Payments (Stripe Test Mode)
+
+While running the project in development with Stripe test keys, you can use the following test credit cards to simulate different scenarios:
+
+**Successful Payment**
+- **Card Number**: `4242 4242 4242 4242`
+- **Expiration Date**: Any date in the future (e.g., `12/32`)
+- **CVC**: Any 3 digits (e.g., `123`)
+
+**Declined Payment (Card Declined)**
+- **Card Number**: `4000 0000 0000 9995`
+- **Expiration Date**: Any date in the future
+- **CVC**: Any 3 digits (e.g., `123`)
 
 ## Useful Commands
 
